@@ -187,15 +187,15 @@ button { font: inherit; cursor: pointer; border: 0; background: none; color: inh
 @media (min-width: 980px) {
   .sticky-wrap.scrim-on::before { opacity: 1; }
 }
-/* Mobile scrim: lighter, only covers the text area at the top */
+/* Mobile scrim: light, just behind the text */
 @media (max-width: 979px) {
   .sticky-wrap::before {
     background: linear-gradient(
       to bottom,
-      rgba(246,244,239,0.92) 0%,
-      rgba(246,244,239,0.75) 20%,
-      rgba(246,244,239,0.2) 40%,
-      rgba(246,244,239,0) 50%
+      rgba(246,244,239,0.85) 0%,
+      rgba(246,244,239,0.6) 18%,
+      rgba(246,244,239,0.15) 35%,
+      rgba(246,244,239,0) 45%
     );
     opacity: 1;
   }
@@ -236,10 +236,10 @@ button { font: inherit; cursor: pointer; border: 0; background: none; color: inh
 .overlay-frame:first-child:not(.is-active) { transform: translateY(14px); }
 .overlay-frame:first-child.is-active { transform: none; }
 
-/* Mobile: stack text on top, image below */
+/* Mobile: stack text on top, right below the nav */
 @media (max-width: 979px) {
   .overlay-frame {
-    top: clamp(56px, 10vh, 100px);
+    top: 64px;
     transform: none;
   }
   .overlay-frame:not(.is-active) {
@@ -249,7 +249,7 @@ button { font: inherit; cursor: pointer; border: 0; background: none; color: inh
     transform: none;
   }
   .overlay-frame:first-child {
-    top: clamp(56px, 10vh, 100px);
+    top: 64px;
   }
 }
 
