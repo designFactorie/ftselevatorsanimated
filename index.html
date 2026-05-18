@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FTS Elevators — Lifting standards.</title>
+  <meta name="description" content="FTS Elevators — precision-engineered lifts. Manufacturing, installation, maintenance and servicing for a lifetime of seamless vertical movement." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,700;1,800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="loader" aria-hidden="true">
+    <div class="loader-mark">FTS</div>
+    <div class="loader-bar"><div class="loader-bar-fill" id="loader-fill"></div></div>
+    <div class="loader-text"><span id="loader-percent">0</span>%</div>
+  </div>
+
+  <header class="nav" id="nav">
+    <a class="nav-brand" href="#top" aria-label="FTS Elevators">
+      <span class="brand-mark">FTS</span>
+      <span class="brand-sub">Elevators</span>
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a href="#services">Services</a>
+      <a href="#engineering">Engineering</a>
+      <a href="#why">Why FTS</a>
+      <a href="#contact" class="nav-cta">Get a quote</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="scroll-stage" id="scroll-stage" aria-label="Elevator showcase">
+      <div class="sticky-wrap">
+        <canvas id="hero-canvas" aria-hidden="true"></canvas>
+
+        <div class="stage-overlay">
+          <div class="overlay-frame" data-from="0" data-to="0.18">
+            <p class="eyebrow">FTS Elevators</p>
+            <h1 class="display">Lifting<br/><em>standards.</em></h1>
+            <p class="lede">Precision-engineered vertical mobility, crafted in-house and finished by hand.</p>
+          </div>
+
+          <div class="overlay-frame" data-from="0.20" data-to="0.38">
+            <p class="eyebrow">Manufacturing</p>
+            <h2 class="display">Built to a tolerance<br/>of <em>tenths.</em></h2>
+            <p class="lede">Every cabin, frame and rail is fabricated to specifications you can feel in the ride.</p>
+          </div>
+
+          <div class="overlay-frame" data-from="0.40" data-to="0.58">
+            <p class="eyebrow">Installation</p>
+            <h2 class="display">Arriving as<br/><em>architecture.</em></h2>
+            <p class="lede">Site-surveyed, factory-finished, and installed without compromise to your space.</p>
+          </div>
+
+          <div class="overlay-frame" data-from="0.60" data-to="0.78">
+            <p class="eyebrow">Maintenance</p>
+            <h2 class="display">Hundreds of parts.<br/><em>One quiet ride.</em></h2>
+            <p class="lede">From traction sheave to control board — sourced, tested and assembled under one roof.</p>
+          </div>
+
+          <div class="overlay-frame" data-from="0.80" data-to="1.0">
+            <p class="eyebrow">Service for life</p>
+            <h2 class="display">We don't deliver<br/>and disappear.</h2>
+            <p class="lede">24×7 maintenance, AMC programs and a service network that answers in hours, not days.</p>
+          </div>
+        </div>
+
+        <div class="scroll-hint" id="scroll-hint">
+          <span>Scroll</span>
+          <div class="scroll-line"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="services" id="services">
+      <div class="section-head">
+        <p class="eyebrow">What we do</p>
+        <h2 class="section-title">Four disciplines.<br/><em>One signature.</em></h2>
+      </div>
+      <div class="service-grid">
+        <article class="service">
+          <span class="service-num">01</span>
+          <h3>Manufacturing</h3>
+          <p>Passenger, freight, capsule and home elevators — fabricated, finished and tested in our own production line.</p>
+        </article>
+        <article class="service">
+          <span class="service-num">02</span>
+          <h3>Installation</h3>
+          <p>Turnkey installation by trained crews, with shaft surveys, civil coordination and commissioning on schedule.</p>
+        </article>
+        <article class="service">
+          <span class="service-num">03</span>
+          <h3>Maintenance</h3>
+          <p>AMC and CMC programs with scheduled visits, genuine spares and uptime guarantees in writing.</p>
+        </article>
+        <article class="service">
+          <span class="service-num">04</span>
+          <h3>Servicing &amp; Modernization</h3>
+          <p>Breakdown response, retrofits, control upgrades and full modernization for ageing equipment.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="engineering" id="engineering">
+      <div class="eng-text">
+        <p class="eyebrow">Engineering</p>
+        <h2 class="section-title">A lift is only<br/>as quiet as<br/><em>its weakest part.</em></h2>
+        <p class="eng-lede">So we hold every part to the same standard — the traction machine, the controller, the door operator, the rails, the cabin finish. The result is a ride you notice for the wrong reason: you don't.</p>
+        <ul class="eng-stats">
+          <li><span class="stat-num" data-target="25" data-suffix="+">0+</span><span class="stat-label">Years on the floor</span></li>
+          <li><span class="stat-num" data-target="2400" data-suffix="+" data-comma="true">0+</span><span class="stat-label">Installations across the UAE</span></li>
+          <li><span class="stat-num" data-target="99.6" data-suffix="%" data-decimal="1">0%</span><span class="stat-label">Service uptime, FY 24–25</span></li>
+          <li><span class="stat-num" data-target="24" data-suffix="×7">0×7</span><span class="stat-label">Emergency response</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="why" id="why">
+      <div class="section-head">
+        <p class="eyebrow">Why FTS</p>
+        <h2 class="section-title">The reasons<br/>architects keep<br/><em>specifying us.</em></h2>
+      </div>
+      <div class="why-grid">
+        <div class="why-card">
+          <h4>In-house manufacturing</h4>
+          <p>No outsourced cabins, no badge-engineered controllers. What we sell, we build.</p>
+        </div>
+        <div class="why-card">
+          <h4>Designed for the site</h4>
+          <p>Capsule, glass, MRL or freight — every order is configured to the shaft we surveyed.</p>
+        </div>
+        <div class="why-card">
+          <h4>Compliance, by default</h4>
+          <p>EN 81, IS 14665 and local lift act requirements built into the spec, not bolted on.</p>
+        </div>
+        <div class="why-card">
+          <h4>Owned service network</h4>
+          <p>Our engineers, our trucks, our spares. The accountability stays with FTS.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="contact" id="contact">
+      <div class="contact-inner">
+        <p class="eyebrow">Let's talk</p>
+        <h2 class="display">Plan a lift with<br/><em>our engineers.</em></h2>
+        <p class="contact-lede">Send us your shaft drawings, traffic study, or just a sketch on the back of an envelope. We'll come back with a configuration, a price, and a date.</p>
+        <div class="contact-actions">
+          <a class="btn-primary" href="mailto:projects@ftselevators.com">Request a quote</a>
+          <a class="btn-ghost" href="tel:+97100000000">+971 0000 0000</a>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="brand-mark large">FTS</div>
+          <p>Elevators, engineered to disappear into the architecture they serve.</p>
+        </div>
+        <div class="footer-col">
+          <h5>Services</h5>
+          <a href="#services">Manufacturing</a>
+          <a href="#services">Installation</a>
+          <a href="#services">Maintenance</a>
+          <a href="#services">Modernization</a>
+        </div>
+        <div class="footer-col">
+          <h5>Company</h5>
+          <a href="#why">Why FTS</a>
+          <a href="#engineering">Engineering</a>
+          <a href="#contact">Contact</a>
+        </div>
+        <div class="footer-col">
+          <h5>Reach us</h5>
+          <a href="mailto:projects@ftselevators.com">projects@ftselevators.com</a>
+          <a href="tel:+97100000000">+971 0000 0000</a>
+        </div>
+      </div>
+      <div class="footer-base">
+        <span>© <span id="year"></span> FTS Elevators. All rights reserved.</span>
+        <span>Engineered in Dubai.</span>
+      </div>
+    </footer>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
