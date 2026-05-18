@@ -239,7 +239,7 @@ button { font: inherit; cursor: pointer; border: 0; background: none; color: inh
 /* Mobile: stack text on top, image below */
 @media (max-width: 979px) {
   .overlay-frame {
-    top: clamp(80px, 14vh, 160px);
+    top: clamp(56px, 10vh, 100px);
     transform: none;
   }
   .overlay-frame:not(.is-active) {
@@ -249,7 +249,7 @@ button { font: inherit; cursor: pointer; border: 0; background: none; color: inh
     transform: none;
   }
   .overlay-frame:first-child {
-    top: clamp(80px, 14vh, 160px);
+    top: clamp(56px, 10vh, 100px);
   }
 }
 
