@@ -180,6 +180,19 @@ button { font: inherit; cursor: pointer; border: 0; background: none; color: inh
 @media (min-width: 980px) {
   .sticky-wrap.scrim-on::before { opacity: 1; }
 }
+/* Mobile scrim: top-down gradient so text at the top stays readable */
+@media (max-width: 979px) {
+  .sticky-wrap::before {
+    background: linear-gradient(
+      to bottom,
+      rgba(246,244,239,0.95) 0%,
+      rgba(246,244,239,0.85) 30%,
+      rgba(246,244,239,0.3) 55%,
+      rgba(246,244,239,0) 70%
+    );
+  }
+  .sticky-wrap.scrim-on::before { opacity: 1; }
+}
 
 /* Overlay frames */
 .stage-overlay {
@@ -212,6 +225,23 @@ button { font: inherit; cursor: pointer; border: 0; background: none; color: inh
 }
 .overlay-frame:first-child:not(.is-active) { transform: translateY(14px); }
 .overlay-frame:first-child.is-active { transform: none; }
+
+/* Mobile: stack text on top, image below */
+@media (max-width: 979px) {
+  .overlay-frame {
+    top: clamp(80px, 14vh, 160px);
+    transform: none;
+  }
+  .overlay-frame:not(.is-active) {
+    transform: translateY(14px);
+  }
+  .overlay-frame.is-active {
+    transform: none;
+  }
+  .overlay-frame:first-child {
+    top: clamp(80px, 14vh, 160px);
+  }
+}
 
 @media (min-width: 980px) {
   .overlay-frame {

@@ -102,31 +102,24 @@
     const imgRatio = iw / ih;
     let dw, dh, dx, dy;
 
-    // On wide screens, "cover" the canvas (some crop at top/bottom).
-    // On portrait screens, "contain" so the elevator stays visible.
-    const useCover = canvasRatio >= 1;
-    if (useCover) {
-      if (imgRatio > canvasRatio) {
-        dh = ch; dw = dh * imgRatio;
-        dx = (cw - dw) / 2; dy = 0;
-      } else {
-        dw = cw; dh = dw / imgRatio;
-        dx = 0; dy = (ch - dh) / 2;
-      }
+    // Always use "cover" — fill the canvas, crop the excess.
+    if (imgRatio > canvasRatio) {
+      // Image is wider than canvas — match height, crop sides
+      dh = ch; dw = dh * imgRatio;
+      dx = (cw - dw) / 2; dy = 0;
     } else {
-      if (imgRatio > canvasRatio) {
-        dw = cw; dh = dw / imgRatio;
-        dx = 0; dy = (ch - dh) / 2;
-      } else {
-        dh = ch; dw = dh * imgRatio;
-        dx = (cw - dw) / 2; dy = 0;
-      }
+      // Image is taller than canvas — match width, crop top/bottom
+      dw = cw; dh = dw / imgRatio;
+      dx = 0; dy = (ch - dh) / 2;
     }
 
-    // Shift the elevator toward the right on wide screens so the overlay
-    // headlines on the left always sit on clean negative space.
+    // Desktop: shift elevator right so text overlay has clean space on the left
     if (cw >= 980) {
       dx += cw * 0.15;
+    }
+    // Mobile: push the image down slightly so text at the top is clear
+    if (cw < 980) {
+      dy += ch * 0.12;
     }
 
     ctx.drawImage(img, dx, dy, dw, dh);
@@ -170,7 +163,8 @@
     render();
     updateOverlays(p);
     if (stickyWrap) {
-      if (p > 0.15) stickyWrap.classList.add('scrim-on');
+      const scrimThreshold = window.innerWidth < 980 ? 0.02 : 0.15;
+      if (p > scrimThreshold) stickyWrap.classList.add('scrim-on');
       else stickyWrap.classList.remove('scrim-on');
     }
   }
