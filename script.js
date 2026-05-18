@@ -81,6 +81,8 @@
     canvas.width = Math.round(w * dpr);
     canvas.height = Math.round(h * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    // Reset so render() always redraws after a resize (resize clears the canvas)
+    currentFrame = -1;
     render();
   }
 
