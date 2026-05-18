@@ -218,6 +218,9 @@ button { font: inherit; cursor: pointer; border: 0; background: none; color: inh
   will-change: opacity, transform;
 }
 .overlay-frame .lede { color: var(--ink-soft); }
+@media (max-width: 979px) {
+  .overlay-frame .lede { display: none; }
+}
 .overlay-frame.is-active {
   opacity: 1;
 }
