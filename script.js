@@ -4,9 +4,12 @@
   // ---------- Config ----------
   const TOTAL_FRAMES = 293;
   const FRAME_PATH = (i) => `screenshots/ezgif-frame-${String(i).padStart(3, '0')}.jpg`;
+  const isNarrowViewport = window.matchMedia('(max-width: 767px)').matches;
+  const savesData = Boolean(navigator.connection?.saveData);
   // Show the page after this many frames are loaded — enough for the first
   // ~viewport of scroll. The rest stream in the background.
-  const PRIME_FRAMES = 24;
+  const PRIME_FRAMES = isNarrowViewport ? 12 : 24;
+  const BACKGROUND_FRAME_STEP = savesData ? 5 : (isNarrowViewport ? 3 : 1);
 
   // ---------- Elements ----------
   const canvas = document.getElementById('hero-canvas');
@@ -15,6 +18,8 @@
   const stickyWrap = document.querySelector('.sticky-wrap');
   const overlays = Array.from(document.querySelectorAll('.overlay-frame'));
   const nav = document.getElementById('nav');
+  const menuToggle = document.getElementById('menu-toggle');
+  const primaryNavigation = document.getElementById('primary-navigation');
   const scrollHint = document.getElementById('scroll-hint');
   const loader = document.getElementById('loader');
   const loaderFill = document.getElementById('loader-fill');
@@ -23,134 +28,389 @@
   if (year) year.textContent = new Date().getFullYear();
 
   // ---------- Language ----------
+  const englishCopy = {};
+  document.querySelectorAll('[data-i18n]').forEach((element) => {
+    englishCopy[element.dataset.i18n] = element.textContent;
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach((element) => {
+    englishCopy[element.dataset.i18nHtml] = element.innerHTML;
+  });
+  document.querySelectorAll('[data-i18n-alt]').forEach((element) => {
+    englishCopy[element.dataset.i18nAlt] = element.getAttribute('alt');
+  });
+
   const translations = {
-    en: {
-      'brand.elevators': 'Elevators',
-      'nav.services': 'Services',
-      'nav.engineering': 'Engineering',
-      'nav.why': 'Why FTS',
-      'nav.quote': 'Get a quote',
-      'hero.eyebrow': 'FTS Elevators',
-      'hero.title': 'Lifting<br/><em>standards.</em>',
-      'hero.lede': 'Precision-engineered vertical mobility, crafted in-house and finished by hand.',
-      'manufacturing.eyebrow': 'Manufacturing',
-      'manufacturing.title': 'Built to a tolerance<br/>of <em>tenths.</em>',
-      'manufacturing.lede': 'Every cabin, frame and rail is fabricated to specifications you can feel in the ride.',
-      'installation.eyebrow': 'Installation',
-      'installation.title': 'Arriving as<br/><em>architecture.</em>',
-      'installation.lede': 'Site-surveyed, factory-finished, and installed without compromise to your space.',
-      'maintenance.eyebrow': 'Maintenance',
-      'maintenance.title': 'Hundreds of parts.<br/><em>One quiet ride.</em>',
-      'maintenance.lede': 'From traction sheave to control board — sourced, tested and assembled under one roof.',
-      'lifetime.eyebrow': 'Service for life',
-      'lifetime.title': "We don't deliver<br/>and <em>disappear.</em>",
-      'lifetime.lede': '24×7 maintenance, AMC programs and a service network that answers in hours, not days.',
-      'common.scroll': 'Scroll',
-      'services.eyebrow': 'What we do',
-      'services.title': 'Four disciplines.<br/><em>One signature.</em>',
-      'services.manufacturing.title': 'Manufacturing',
-      'services.manufacturing.copy': 'Passenger, freight, capsule and home elevators — fabricated, finished and tested in our own production line.',
-      'services.installation.title': 'Installation',
-      'services.installation.copy': 'Turnkey installation by trained crews, with shaft surveys, civil coordination and commissioning on schedule.',
-      'services.maintenance.title': 'Maintenance',
-      'services.maintenance.copy': 'AMC and CMC programs with scheduled visits, genuine spares and uptime guarantees in writing.',
-      'services.modernization.title': 'Servicing & Modernization',
-      'services.modernization.copy': 'Breakdown response, retrofits, control upgrades and full modernization for ageing equipment.',
-      'engineering.eyebrow': 'Engineering',
-      'engineering.title': 'A lift is only<br/>as quiet as<br/><em>its weakest part.</em>',
-      'engineering.copy': "So we hold every part to the same standard — the traction machine, the controller, the door operator, the rails, the cabin finish. The result is a ride you notice for the wrong reason: you don't.",
-      'stats.years': 'Years on the floor',
-      'stats.installations': 'Installations across the UAE',
-      'stats.uptime': 'Service uptime, FY 24–25',
-      'stats.emergency': 'Emergency response',
-      'why.eyebrow': 'Why FTS',
-      'why.title': 'The reasons<br/>architects keep<br/><em>specifying us.</em>',
-      'why.inhouse.title': 'In-house manufacturing',
-      'why.inhouse.copy': 'No outsourced cabins, no badge-engineered controllers. What we sell, we build.',
-      'why.site.title': 'Designed for the site',
-      'why.site.copy': 'Capsule, glass, MRL or freight — every order is configured to the shaft we surveyed.',
-      'why.compliance.title': 'Compliance, by default',
-      'why.compliance.copy': 'EN 81, IS 14665 and local lift act requirements built into the spec, not bolted on.',
-      'why.network.title': 'Owned service network',
-      'why.network.copy': 'Our engineers, our trucks, our spares. The accountability stays with FTS.',
-      'contact.eyebrow': "Let's talk",
-      'contact.title': 'Plan a lift with<br/><em>our engineers.</em>',
-      'contact.copy': "Send us your shaft drawings, traffic study, or just a sketch on the back of an envelope. We'll come back with a configuration, a price, and a date.",
-      'contact.quote': 'Request a quote',
-      'footer.tagline': 'Elevators, engineered to disappear into the architecture they serve.',
-      'footer.services': 'Services',
-      'footer.modernization': 'Modernization',
-      'footer.company': 'Company',
-      'footer.contact': 'Contact',
-      'footer.reach': 'Reach us',
-      'footer.address': 'The One Tower - Sheikh Zayed Rd - Al Thanyah First - Dubai Internet City - Dubai - United Arab Emirates',
-      'footer.copyright': 'FTS Elevators. All rights reserved.',
-      'footer.dubai': 'Engineered in Dubai.'
-    },
+    en: englishCopy,
     ar: {
-      'brand.elevators': 'للمصاعد',
+      'brand.elevators': 'مصاعد وسلالم متحركة',
+      'nav.about': 'عن FTS',
       'nav.services': 'الخدمات',
-      'nav.engineering': 'الهندسة',
+      'nav.products': 'المنتجات',
       'nav.why': 'لماذا FTS',
-      'nav.quote': 'اطلب عرض سعر',
-      'hero.eyebrow': 'مصاعد FTS',
-      'hero.title': 'نرتقي<br/><em>بالمعايير.</em>',
-      'hero.lede': 'حلول تنقّل رأسي بهندسة دقيقة، نصنعها داخلياً ونُنهيها يدوياً.',
-      'manufacturing.eyebrow': 'التصنيع',
-      'manufacturing.title': 'صُممت بدقة<br/>تصل إلى <em>أعشار المليمتر.</em>',
-      'manufacturing.lede': 'تُصنع كل كابينة وإطار وسكة وفق مواصفات تلمس دقتها في سلاسة الرحلة.',
-      'installation.eyebrow': 'التركيب',
-      'installation.title': 'تُركّب كجزء من<br/><em>العمارة.</em>',
-      'installation.lede': 'نعاين الموقع، وننجز التشطيبات في المصنع، ونركّب المصعد دون المساس بتصميم مساحتك.',
-      'maintenance.eyebrow': 'الصيانة',
-      'maintenance.title': 'مئات القطع.<br/><em>رحلة واحدة هادئة.</em>',
-      'maintenance.lede': 'من بكرة الجر إلى لوحة التحكم — نختار كل قطعة ونختبرها ونجمعها تحت سقف واحد.',
-      'lifetime.eyebrow': 'خدمة مدى الحياة',
-      'lifetime.title': 'لا نكتفي بالتسليم<br/><em>ثم نختفي.</em>',
-      'lifetime.lede': 'صيانة على مدار الساعة، وبرامج AMC، وشبكة خدمة تستجيب خلال ساعات لا أيام.',
+      'nav.process': 'كيف نعمل',
+      'nav.contact': 'تواصل معنا',
+      'hero.eyebrow': 'مصاعد وسلالم متحركة من FTS',
+      'hero.title': 'حلول متكاملة<br/><em>للنقل الرأسي.</em>',
+      'hero.lede': 'خبرة مقرها دبي في المصاعد والسلالم المتحركة، تجمع بين الهندسة المعتمدة والمكونات الأصلية وخدمة ما بعد البيع المنضبطة في جميع أنحاء الإمارات.',
+      'supply.eyebrow': 'التوريد والتركيب',
+      'supply.title': 'مواصفات واضحة.<br/><em>وتركيب آمن.</em>',
+      'supply.lede': 'توريد وتركيب متكامل لمصاعد الركاب والفلل والبانوراما والمستشفيات والبضائع والمصاعد الهيدروليكية.',
+      'maintenance.eyebrow': 'الصيانة السنوية',
+      'maintenance.title': 'عناية مجدولة.<br/><em>وموثقة بالكامل.</em>',
+      'maintenance.lede': 'زيارات صيانة وقائية ضمن عقود AMC، وفحوص سلامة، وتشحيم، وقطع غيار أصلية، وتقارير مفصلة.',
+      'modernization.eyebrow': 'التحديث',
+      'modernization.title': 'نعيد المصاعد القديمة<br/><em>إلى الحياة.</em>',
+      'modernization.lede': 'محركات VVVF وكبائن حديثة ولوحات تحكم تعمل باللمس وإضاءة موفرة وأنظمة سلامة محدثة.',
+      'callouts.eyebrow': 'الإصلاح والبلاغات على مدار الساعة',
+      'callouts.title': 'الطوارئ لا<br/><em>تنتظر في قائمة.</em>',
+      'callouts.lede': 'تتعامل فرق الاستجابة السريعة مع إنقاذ الركاب وتشخيص الأعطال والإصلاح في الزيارة نفسها حيثما أمكن.',
       'common.scroll': 'مرّر',
-      'services.eyebrow': 'ماذا نقدم',
-      'services.title': 'أربع تخصصات.<br/><em>بصمة واحدة.</em>',
-      'services.manufacturing.title': 'التصنيع',
-      'services.manufacturing.copy': 'مصاعد للركاب والبضائع والكبسولات والمنازل — نصنعها ونشطبها ونختبرها في خط إنتاجنا.',
-      'services.installation.title': 'التركيب',
-      'services.installation.copy': 'تركيب متكامل تنفذه فرق مدرّبة، يشمل معاينة البئر والتنسيق المدني والتشغيل وفق الجدول.',
-      'services.maintenance.title': 'الصيانة',
-      'services.maintenance.copy': 'برامج AMC وCMC بزيارات مجدولة وقطع غيار أصلية وضمانات تشغيل مكتوبة.',
-      'services.modernization.title': 'الخدمة والتحديث',
-      'services.modernization.copy': 'استجابة للأعطال، وتحديثات تقنية وأنظمة تحكم، وتجديد شامل للمعدات القديمة.',
-      'engineering.eyebrow': 'الهندسة',
-      'engineering.title': 'لا يكون المصعد<br/>هادئاً إلا بقدر<br/><em>أضعف أجزائه.</em>',
-      'engineering.copy': 'لذلك نخضع كل جزء للمعيار نفسه — ماكينة الجر ووحدة التحكم ومشغّل الباب والسكك وتشطيب الكابينة. والنتيجة رحلة سلسة لا تشعر بها.',
-      'stats.years': 'عاماً من الخبرة الميدانية',
-      'stats.installations': 'تركيبات في أنحاء الإمارات',
-      'stats.uptime': 'جاهزية الخدمة، السنة المالية 24–25',
-      'stats.emergency': 'استجابة للطوارئ',
+      'about.eyebrow': 'عن الشركة',
+      'about.title': 'من<br/><em>نحن.</em>',
+      'about.copy': 'FTS للمصاعد والسلالم المتحركة (فيكسبل للخدمات الفنية ذ.م.م) شركة مقرها دبي تقدم حلولاً متكاملة للنقل الرأسي في أنحاء الإمارات. من مصاعد الفلل الأنيقة إلى المشاريع التجارية عالية الاستخدام، نجمع بين الهندسة المعتمدة والمكونات الأصلية والعناية المنضبطة بعد البيع ليبقى مبناك في حركة دائمة.',
+      'stats.genuine': 'قطع أصلية وعمل معتمد',
+      'stats.response': 'خط الاستجابة للأعطال',
+      'stats.emirates': 'تغطية جميع الإمارات',
+      'stats.contact': 'جهة اتصال واحدة من البداية إلى النهاية',
+      'services.eyebrow': 'خدماتنا',
+      'services.title': 'في مواقع العمل،<br/><em>في أنحاء الإمارات.</em>',
+      'services.supply.title': 'التوريد والتركيب',
+      'services.supply.copy': 'توريد وتركيب متكامل لمصاعد الركاب والفلل والبانوراما والبضائع. محركات VVVF بدون تروس وتصاميم MRL أو بغرفة ماكينة، مع الرسومات الهندسية والامتثال لمتطلبات الجهات المختصة.',
+      'services.amc.title': 'الصيانة السنوية',
+      'services.amc.copy': 'خطط AMC وقائية تشمل زيارات مجدولة وفحوص السلامة والتشحيم وقطع الغيار الأصلية. وتُبقي تقارير الزيارات المفصلة الملاك وإدارة المبنى على اطلاع كامل.',
+      'services.modernization.title': 'التحديث',
+      'services.modernization.copy': 'محركات VVVF جديدة وكبائن حديثة ولوحات COP/LOP تعمل باللمس وإضاءة موفرة للطاقة وأنظمة سلامة محدثة - من دون إعادة بناء البئر.',
+      'services.callouts.title': 'الإصلاح والبلاغات 24/7',
+      'services.callouts.copy': 'دعم للأعطال على مدار الساعة في أنحاء الإمارات، يشمل إنقاذ الركاب وتشخيص الأعطال والإصلاح في الزيارة نفسها حيثما أمكن.',
+      'products.eyebrow': 'منتجاتنا',
+      'products.title': 'مصعد مناسب<br/><em>لكل مبنى.</em>',
+      'products.view': 'عرض التفاصيل',
+      'products.passenger.tag': 'بدون غرفة ماكينة / بغرفة ماكينة',
+      'products.passenger.title': 'مصاعد الركاب',
+      'products.passenger.copy': 'أنظمة MRL وبغرفة ماكينة بسعات 450-2,000 كجم للأبراج السكنية والتجارية.',
+      'products.villa.tag': 'بئر مدمج',
+      'products.villa.title': 'مصاعد الفلل',
+      'products.villa.copy': 'مصاعد بسعات 260-400 كجم للآبار المدمجة، مع كبائن تتناسق مع تصميمك الداخلي.',
+      'products.panoramic.tag': 'كابينة زجاجية',
+      'products.panoramic.title': 'مصاعد بانورامية / مشاهدة',
+      'products.panoramic.copy': 'كبائن زجاجية وآبار مشاهدة بتكوينات دائرية أو نصف دائرية.',
+      'products.hospital.tag': 'مجهز للنقالات',
+      'products.hospital.title': 'مصاعد المستشفيات',
+      'products.hospital.copy': 'كبائن مجهزة للنقالات بسعات 1,600-2,000 كجم لرحلة سلسة وخالية من الاهتزاز.',
+      'products.freight.tag': 'استخدام شاق',
+      'products.freight.title': 'مصاعد البضائع والشحن',
+      'products.freight.copy': 'أنظمة بسعات 630-10,000 كجم للمستودعات ومتاجر التجزئة والمباني الصناعية.',
+      'products.hydraulic.tag': 'مبانٍ منخفضة الارتفاع',
+      'products.hydraulic.title': 'المصاعد الهيدروليكية',
+      'products.hydraulic.copy': 'حلول بمحركات بسيطة ومتينة للمباني منخفضة الارتفاع والاستخدامات الشاقة.',
+      'cabins.eyebrow': 'مجموعة تصميم الكبائن',
+      'cabins.title': 'صمم رحلتك.',
+      'cabins.copy': 'يُنجز كل مصعد من FTS وفق ذوقك. ويمكن تخصيص جدران الكابينة والسقف والأرضية والدرابزين وأدوات التحكم اللمسية بالكامل لتتناسب مع تصميمك الداخلي.',
+      'cabins.gold': 'مجموعة الذهبي والشمبانيا',
+      'cabins.g01': 'المرآة الذهبية',
+      'cabins.g02': 'الذهبي الإمبراطوري',
+      'cabins.g03': 'قوس الشمبانيا',
+      'cabins.g04': 'الدمشقي الملكي',
+      'cabins.g05': 'زهر الورد',
+      'cabins.steel': 'الخشب والفولاذ المعاصر',
+      'cabins.w01': 'خط الجوز',
+      'cabins.w02': 'الشلال البرونزي',
+      'cabins.s01': 'فولاذ لينيا',
+      'cabins.s02': 'فولاذ أوربت',
+      'cabins.s03': 'الخط الفضي',
       'why.eyebrow': 'لماذا FTS',
-      'why.title': 'الأسباب التي تجعل<br/>المعماريين يواصلون<br/><em>اختيارنا.</em>',
-      'why.inhouse.title': 'التصنيع الداخلي',
-      'why.inhouse.copy': 'لا كبائن خارجية ولا وحدات تحكم بعلامات مستعارة. ما نبيعه، نصنعه.',
-      'why.site.title': 'مصمم للموقع',
-      'why.site.copy': 'كبسولي أو زجاجي أو بدون غرفة ماكينة أو للبضائع — نهيئ كل طلب ليناسب البئر الذي عاينّاه.',
-      'why.compliance.title': 'الامتثال من البداية',
-      'why.compliance.copy': 'ندمج متطلبات EN 81 وIS 14665 واللوائح المحلية في المواصفات منذ البداية.',
-      'why.network.title': 'شبكة خدمة مملوكة لنا',
-      'why.network.copy': 'مهندسونا وشاحناتنا وقطع غيارنا. وتبقى المسؤولية لدى FTS.',
-      'contact.eyebrow': 'لنتحدث',
-      'contact.title': 'خطّط لمصعدك مع<br/><em>مهندسينا.</em>',
-      'contact.copy': 'أرسل إلينا مخططات البئر أو دراسة الحركة أو حتى رسماً أولياً. سنعود إليك بتكوين مناسب وسعر وموعد.',
-      'contact.quote': 'اطلب عرض سعر',
-      'footer.tagline': 'مصاعد صُممت لتندمج بانسجام مع العمارة التي تخدمها.',
+      'why.title': 'لماذا يختار ملاك المباني<br/><em>شركة FTS.</em>',
+      'why.survey.title': 'معاينة مجانية للموقع',
+      'why.survey.copy': 'يزور مهندسونا الموقع ويجرون القياسات والتقييم من دون تكلفة، ثم نقدم عرضاً واضحاً ومفصلاً من دون أي التزام.',
+      'why.safety.title': 'السلامة أولاً، دائماً',
+      'why.safety.copy': 'تتبع كل زيارة تركيب وصيانة معايير السلامة الدولية، مع توثيق كامل لعمليات التفتيش الرسمية.',
+      'why.pricing.title': 'أسعار شفافة',
+      'why.pricing.copy': 'قيم عقود ثابتة ومراحل دفع واضحة ومن دون رسوم خفية. ما نقدمه في العرض هو ما تدفعه.',
+      'why.response.title': 'فرق استجابة سريعة',
+      'why.response.copy': 'تتعامل فرق البلاغات المخصصة في دبي والشارقة وعجمان مع حالات احتجاز الركاب والأعطال كطوارئ لا كتذاكر دعم.',
+      'why.brands.title': 'خدمة جميع العلامات',
+      'why.brands.copy': 'نصون ونصلح ونحدث مصاعد جميع العلامات الرئيسية، فلا تبقى مقيداً بالشركة المصنعة الأصلية.',
+      'why.bilingual.title': 'عقود ثنائية اللغة',
+      'why.bilingual.copy': 'اتفاقيات AMC احترافية بالإنجليزية والعربية تلبي متطلبات الملاك وإدارة المباني والجهات الحكومية.',
+      'process.eyebrow': 'كيف نعمل',
+      'process.title': 'من الزيارة الأولى<br/><em>إلى العناية طويلة الأمد.</em>',
+      'process.survey.title': 'معاينة الموقع',
+      'process.survey.copy': 'زيارة مجانية وقياسات وتقييم فني يجريه مهندسونا.',
+      'process.proposal.title': 'العرض',
+      'process.proposal.copy': 'عرض سعر مفصل بمواصفات واضحة وجدول زمني ومراحل دفع محددة.',
+      'process.delivery.title': 'التنفيذ',
+      'process.delivery.copy': 'تنفيذ التركيب أو الخدمة بواسطة فرق معتمدة مع توثيق كامل للسلامة.',
+      'process.care.title': 'رعاية AMC',
+      'process.care.copy': 'التسليم والتدريب وخطة صيانة سنوية توفر لك التغطية المستمرة.',
+      'amc.eyebrow': 'عقد الصيانة السنوية',
+      'amc.title': 'وقّع عقد AMC - وتوقف عن القلق.',
+      'amc.copy': 'يغطي عقد سنوي واحد الصيانة المجدولة وفحوص السلامة وأولوية الاستجابة والتوثيق النظامي. وتصدر الاتفاقيات الثنائية اللغة خلال 24 ساعة من التأكيد.',
+      'job.technicians': 'فنيون معتمدون بزي موحد',
+      'job.parts': 'قطع غيار أصلية 100%',
+      'job.survey': 'معاينة وعرض سعر مجاناً',
+      'job.safety': 'توثيق كامل للسلامة',
+      'job.brands': 'خدمة جميع علامات المصاعد',
+      'job.contracts': 'عقود بالإنجليزية والعربية',
+      'modal.eyebrow': 'تفاصيل المنتج',
+      'modal.overview': 'نظرة عامة',
+      'modal.specifications': 'المواصفات الرئيسية',
+      'modal.features': 'ما تقدمه FTS',
+      'modal.cta': 'ناقش هذا المنتج معنا',
+      'contact.eyebrow': 'معاينة مجانية للموقع',
+      'contact.title': 'دعنا نقيّم<br/><em>مبناك.</em>',
+      'contact.copy': 'احجز زيارة مجانية للموقع. سيجري مهندسونا القياسات والتقييم ويقدمون عرض سعر واضحاً ومفصلاً من دون أي التزام.',
+      'contact.quote': 'اطلب معاينة مجانية',
+      'whatsapp.contact': 'تواصل معنا',
+      'footer.tagline': 'فيكسبل للخدمات الفنية ذ.م.م. حلول متكاملة للمصاعد والسلالم المتحركة في أنحاء الإمارات.',
       'footer.services': 'الخدمات',
       'footer.modernization': 'التحديث',
+      'footer.callouts': 'بلاغات الطوارئ 24/7',
       'footer.company': 'الشركة',
       'footer.contact': 'تواصل معنا',
       'footer.reach': 'بيانات التواصل',
       'footer.address': 'برج ذا ون - شارع الشيخ زايد - الثنية الأولى - مدينة دبي للإنترنت - دبي - الإمارات العربية المتحدة',
-      'footer.copyright': 'مصاعد FTS. جميع الحقوق محفوظة.',
-      'footer.dubai': 'صُممت هندسياً في دبي.'
+      'footer.copyright': 'فيكسبل للخدمات الفنية ذ.م.م. جميع الحقوق محفوظة.',
+      'footer.dubai': 'مقرنا دبي ونخدم الإمارات السبع.'
     }
   };
+
+  const productDetails = {
+    passenger: {
+      image: 'assets/products/passenger-elevator.webp',
+      en: {
+        title: 'Passenger Elevators',
+        tag: 'MRL / Machine room',
+        overview: 'Flexible passenger lift systems designed around the building, expected traffic and architectural finish. FTS supports the project from the first shaft survey through installation, commissioning and long-term care.',
+        specs: [
+          ['Capacity', '450-2,000 kg'],
+          ['Configuration', 'MRL or machine room'],
+          ['Drive', 'VVVF gearless'],
+          ['Applications', 'Residential and commercial towers']
+        ],
+        features: [
+          'Site survey and shaft assessment',
+          'Custom cabin finishes and control panels',
+          'Engineering drawings and authority documentation',
+          'Installation, commissioning and AMC handover'
+        ]
+      },
+      ar: {
+        title: 'مصاعد الركاب',
+        tag: 'بدون غرفة ماكينة / بغرفة ماكينة',
+        overview: 'أنظمة مرنة لمصاعد الركاب تُصمم وفق المبنى وحركة الاستخدام المتوقعة والطابع المعماري. تدعم FTS المشروع من معاينة البئر الأولى حتى التركيب والتشغيل والعناية طويلة الأمد.',
+        specs: [
+          ['السعة', '450-2,000 كجم'],
+          ['التكوين', 'MRL أو بغرفة ماكينة'],
+          ['نظام الحركة', 'VVVF بدون تروس'],
+          ['الاستخدامات', 'الأبراج السكنية والتجارية']
+        ],
+        features: [
+          'معاينة الموقع وتقييم البئر',
+          'تشطيبات كبائن ولوحات تحكم مخصصة',
+          'رسومات هندسية ووثائق الجهات المختصة',
+          'التركيب والتشغيل والتسليم مع خطة AMC'
+        ]
+      }
+    },
+    villa: {
+      image: 'assets/products/villa-elevator.webp',
+      en: {
+        title: 'Villa Elevators',
+        tag: 'Compact shaft',
+        overview: 'Space-conscious home lifts that bring comfortable vertical access to private residences without compromising the interior. Each cabin can be coordinated with the villa’s materials, lighting and design language.',
+        specs: [
+          ['Capacity', '260-400 kg'],
+          ['Shaft', 'Compact configuration'],
+          ['Cabin', 'Interior-matched finish'],
+          ['Applications', 'Villas and private residences']
+        ],
+        features: [
+          'Free measurement and technical survey',
+          'Space-efficient project configuration',
+          'Custom walls, ceilings, flooring and controls',
+          'Owner training and annual maintenance options'
+        ]
+      },
+      ar: {
+        title: 'مصاعد الفلل',
+        tag: 'بئر مدمج',
+        overview: 'مصاعد منزلية موفرة للمساحة تمنح المساكن الخاصة وصولاً رأسياً مريحاً دون التأثير في التصميم الداخلي. ويمكن تنسيق كل كابينة مع مواد الفيلا وإضاءتها وهويتها التصميمية.',
+        specs: [
+          ['السعة', '260-400 كجم'],
+          ['البئر', 'تكوين مدمج'],
+          ['الكابينة', 'تشطيب متناسق مع الديكور'],
+          ['الاستخدامات', 'الفلل والمساكن الخاصة']
+        ],
+        features: [
+          'قياسات ومعاينة فنية مجانية',
+          'تكوين يناسب المساحات المحدودة',
+          'تخصيص الجدران والسقف والأرضية والتحكم',
+          'تدريب المالك وخيارات الصيانة السنوية'
+        ]
+      }
+    },
+    panoramic: {
+      image: 'assets/products/panoramic-elevator.webp',
+      en: {
+        title: 'Panoramic / Observation',
+        tag: 'Glass cabin',
+        overview: 'Architectural glass elevators that turn vertical travel into part of the experience. Circular and semi-circular configurations can be tailored to the available shaft and the visual character of the property.',
+        specs: [
+          ['Cabin', 'Glazed observation design'],
+          ['Shaft options', 'Circular or semi-circular'],
+          ['Design focus', 'Open views and architectural impact'],
+          ['Applications', 'Feature spaces and public areas']
+        ],
+        features: [
+          'Site-led glass and structure configuration',
+          'Cabin finishes coordinated with the building',
+          'Lighting and control-panel customization',
+          'Installation and documented safety checks'
+        ]
+      },
+      ar: {
+        title: 'مصاعد بانورامية / مشاهدة',
+        tag: 'كابينة زجاجية',
+        overview: 'مصاعد زجاجية معمارية تجعل التنقل الرأسي جزءاً من التجربة. ويمكن تكييف التكوينات الدائرية ونصف الدائرية وفق البئر المتاح والطابع البصري للمبنى.',
+        specs: [
+          ['الكابينة', 'تصميم زجاجي للمشاهدة'],
+          ['خيارات البئر', 'دائري أو نصف دائري'],
+          ['التركيز التصميمي', 'رؤية مفتوحة وحضور معماري'],
+          ['الاستخدامات', 'المساحات المميزة والعامة']
+        ],
+        features: [
+          'تكوين الزجاج والهيكل وفق الموقع',
+          'تشطيبات متناسقة مع تصميم المبنى',
+          'تخصيص الإضاءة ولوحات التحكم',
+          'تركيب وفحوص سلامة موثقة'
+        ]
+      }
+    },
+    hospital: {
+      image: 'assets/products/hospital-elevator.webp',
+      en: {
+        title: 'Hospital Elevators',
+        tag: 'Stretcher-ready',
+        overview: 'Stretcher-ready lift cars planned for dependable movement in healthcare buildings. The configuration prioritizes usable cabin space and a smooth, vibration-conscious ride for patients and clinical teams.',
+        specs: [
+          ['Capacity', '1,600-2,000 kg'],
+          ['Cabin', 'Stretcher-ready'],
+          ['Ride priority', 'Smooth and vibration-conscious'],
+          ['Applications', 'Hospitals and healthcare facilities']
+        ],
+        features: [
+          'Site assessment around clinical movement needs',
+          'Durable, practical cabin-finish options',
+          'Safety inspections and documented commissioning',
+          'Preventive AMC and rapid callout support'
+        ]
+      },
+      ar: {
+        title: 'مصاعد المستشفيات',
+        tag: 'مجهز للنقالات',
+        overview: 'كبائن مصاعد مجهزة للنقالات ومخططة للحركة الموثوقة في منشآت الرعاية الصحية. يركز التكوين على مساحة الكابينة العملية ورحلة سلسة تراعي تقليل الاهتزاز للمرضى والفرق الطبية.',
+        specs: [
+          ['السعة', '1,600-2,000 كجم'],
+          ['الكابينة', 'مجهزة للنقالات'],
+          ['أولوية الحركة', 'سلاسة وتقليل الاهتزاز'],
+          ['الاستخدامات', 'المستشفيات والمنشآت الصحية']
+        ],
+        features: [
+          'تقييم الموقع وفق احتياجات الحركة الطبية',
+          'خيارات تشطيب عملية ومتينة',
+          'فحوص سلامة وتشغيل موثق',
+          'صيانة AMC وقائية ودعم سريع للبلاغات'
+        ]
+      }
+    },
+    freight: {
+      image: 'assets/products/freight-elevator.webp',
+      en: {
+        title: 'Goods / Freight Elevators',
+        tag: 'Heavy duty',
+        overview: 'Robust goods-lift systems configured around load type, movement frequency and building operations. FTS covers projects from retail stock movement to warehouse and industrial handling requirements.',
+        specs: [
+          ['Capacity', '630-10,000 kg'],
+          ['Duty', 'Heavy-duty goods movement'],
+          ['Configuration', 'Project-specific sizing'],
+          ['Applications', 'Warehouses, retail and industry']
+        ],
+        features: [
+          'Load and operational-needs assessment',
+          'Practical cabin and entrance configuration',
+          'Clear engineering and payment milestones',
+          'Maintenance plans with genuine spare parts'
+        ]
+      },
+      ar: {
+        title: 'مصاعد البضائع والشحن',
+        tag: 'استخدام شاق',
+        overview: 'أنظمة متينة لمصاعد البضائع تُهيأ وفق نوع الحمولة وتكرار الحركة وعمليات المبنى. تغطي FTS المشاريع من نقل مخزون التجزئة إلى متطلبات المستودعات والمناولة الصناعية.',
+        specs: [
+          ['السعة', '630-10,000 كجم'],
+          ['الاستخدام', 'نقل بضائع شاق'],
+          ['التكوين', 'مقاسات خاصة بالمشروع'],
+          ['التطبيقات', 'المستودعات والتجزئة والصناعة']
+        ],
+        features: [
+          'تقييم الحمولة والاحتياجات التشغيلية',
+          'تكوين عملي للكابينة والمداخل',
+          'مراحل هندسية ومالية واضحة',
+          'خطط صيانة بقطع غيار أصلية'
+        ]
+      }
+    },
+    hydraulic: {
+      image: 'assets/products/hydraulic-lift.webp',
+      en: {
+        title: 'Hydraulic Lifts',
+        tag: 'Low rise',
+        overview: 'Simple, robust hydraulic solutions for low-rise buildings and demanding applications. Each system is configured around the available space, required duty and practical service access.',
+        specs: [
+          ['Drive', 'Hydraulic'],
+          ['Building type', 'Low rise'],
+          ['Duty', 'Standard or heavy duty'],
+          ['Capacity', 'Configured to project needs']
+        ],
+        features: [
+          'Technical survey and application review',
+          'Space-aware equipment configuration',
+          'Certified installation and safety documentation',
+          'Scheduled maintenance and breakdown support'
+        ]
+      },
+      ar: {
+        title: 'المصاعد الهيدروليكية',
+        tag: 'مبانٍ منخفضة الارتفاع',
+        overview: 'حلول هيدروليكية بسيطة ومتينة للمباني منخفضة الارتفاع والاستخدامات الصعبة. يُهيأ كل نظام وفق المساحة المتاحة وطبيعة التشغيل وسهولة الوصول للصيانة.',
+        specs: [
+          ['نظام الحركة', 'هيدروليكي'],
+          ['نوع المبنى', 'منخفض الارتفاع'],
+          ['طبيعة التشغيل', 'عادي أو شاق'],
+          ['السعة', 'وفق احتياجات المشروع']
+        ],
+        features: [
+          'معاينة فنية ومراجعة الاستخدام',
+          'تكوين للمعدات يراعي المساحة',
+          'تركيب معتمد ووثائق سلامة',
+          'صيانة مجدولة ودعم للأعطال'
+        ]
+      }
+    }
+  };
+
+  const productModal = document.getElementById('product-modal');
+  const productModalDialog = document.querySelector('.product-modal-dialog');
+  const productModalClose = document.getElementById('product-modal-close');
+  const productModalImage = document.getElementById('product-modal-image');
+  const productModalTag = document.getElementById('product-modal-tag');
+  const productModalTitle = document.getElementById('product-modal-title');
+  const productModalOverview = document.getElementById('product-modal-overview');
+  const productModalSpecs = document.getElementById('product-modal-specs');
+  const productModalFeatures = document.getElementById('product-modal-features');
+  const productModalCta = document.getElementById('product-modal-cta');
+  let activeProduct = null;
+  let lastProductTrigger = null;
 
   const languageToggle = document.getElementById('language-toggle');
   const languageToggleLabel = document.getElementById('language-toggle-label');
@@ -162,13 +422,15 @@
 
     document.documentElement.lang = selected;
     document.documentElement.dir = isArabic ? 'rtl' : 'ltr';
-    document.title = isArabic ? 'مصاعد FTS — نرتقي بالمعايير.' : 'FTS Elevators — Lifting standards.';
+    document.title = isArabic
+      ? 'شركة مصاعد في دبي | تركيب وصيانة المصاعد | FTS'
+      : 'Elevator Company Dubai | Installation & Maintenance | FTS';
 
     const description = document.querySelector('meta[name="description"]');
     if (description) {
       description.content = isArabic
-        ? 'مصاعد FTS — حلول مصاعد بهندسة دقيقة للتصنيع والتركيب والصيانة والخدمة طوال العمر.'
-        : 'FTS Elevators — precision-engineered lifts. Manufacturing, installation, maintenance and servicing for a lifetime of seamless vertical movement.';
+        ? 'تقدم FTS تركيب المصاعد وعقود الصيانة السنوية والتحديث والإصلاح على مدار الساعة في دبي وجميع أنحاء الإمارات.'
+        : 'FTS provides elevator installation, AMC maintenance, modernization and 24/7 lift repair across Dubai and the UAE. Book a free site survey.';
     }
 
     document.querySelectorAll('[data-i18n]').forEach((element) => {
@@ -179,14 +441,34 @@
       const value = copy[element.dataset.i18nHtml];
       if (value !== undefined) element.innerHTML = value;
     });
+    document.querySelectorAll('[data-i18n-alt]').forEach((element) => {
+      const value = copy[element.dataset.i18nAlt];
+      if (value !== undefined) element.setAttribute('alt', value);
+    });
 
     const primaryNav = document.querySelector('.nav-links');
     if (primaryNav) primaryNav.setAttribute('aria-label', isArabic ? 'التنقل الرئيسي' : 'Primary');
-    if (stage) stage.setAttribute('aria-label', isArabic ? 'عرض المصعد' : 'Elevator showcase');
+    if (stage) stage.setAttribute('aria-label', isArabic ? 'عرض المصاعد والسلالم المتحركة' : 'Elevator and escalator showcase');
     if (languageToggle && languageToggleLabel) {
       languageToggleLabel.textContent = isArabic ? 'English' : 'العربية';
       languageToggle.setAttribute('aria-label', isArabic ? 'Switch to English' : 'Switch to Arabic');
     }
+    if (menuToggle) {
+      const isOpen = nav?.classList.contains('menu-open');
+      menuToggle.setAttribute('aria-label', isArabic
+        ? (isOpen ? 'إغلاق قائمة التنقل' : 'فتح قائمة التنقل')
+        : (isOpen ? 'Close navigation menu' : 'Open navigation menu'));
+    }
+    if (productModalClose) {
+      productModalClose.setAttribute('aria-label', isArabic ? 'إغلاق تفاصيل المنتج' : 'Close product details');
+    }
+    document.querySelectorAll('.product-card[data-product]').forEach((card) => {
+      const detail = productDetails[card.dataset.product]?.[selected];
+      if (detail) {
+        card.setAttribute('aria-label', isArabic ? `عرض تفاصيل ${detail.title}` : `View details for ${detail.title}`);
+      }
+    });
+    if (activeProduct) renderProductModal(activeProduct);
 
     if (persist) {
       try { localStorage.setItem('fts-language', selected); } catch (_) { /* Storage may be unavailable. */ }
@@ -210,6 +492,143 @@
     }
   }
 
+  // ---------- Mobile navigation ----------
+  function setMobileMenu(open) {
+    if (!nav || !menuToggle) return;
+    nav.classList.toggle('menu-open', open);
+    menuToggle.setAttribute('aria-expanded', String(open));
+    const isArabic = document.documentElement.lang === 'ar';
+    menuToggle.setAttribute('aria-label', isArabic
+      ? (open ? 'إغلاق قائمة التنقل' : 'فتح قائمة التنقل')
+      : (open ? 'Close navigation menu' : 'Open navigation menu'));
+  }
+
+  function setupMobileNavigation() {
+    if (!nav || !menuToggle || !primaryNavigation) return;
+
+    menuToggle.addEventListener('click', () => {
+      setMobileMenu(!nav.classList.contains('menu-open'));
+    });
+
+    primaryNavigation.querySelectorAll('a, button').forEach((element) => {
+      element.addEventListener('click', () => setMobileMenu(false));
+    });
+
+    document.addEventListener('click', (event) => {
+      if (nav.classList.contains('menu-open') && !nav.contains(event.target)) {
+        setMobileMenu(false);
+      }
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && nav.classList.contains('menu-open')) {
+        setMobileMenu(false);
+        menuToggle.focus();
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      if (window.innerWidth > 860) setMobileMenu(false);
+    }, { passive: true });
+  }
+
+  // ---------- Product details modal ----------
+  function renderProductModal(productId) {
+    const language = document.documentElement.lang === 'ar' ? 'ar' : 'en';
+    const product = productDetails[productId];
+    const detail = product?.[language];
+    if (!product || !detail) return;
+
+    productModalImage.src = product.image;
+    productModalImage.alt = detail.title;
+    productModalTag.textContent = detail.tag;
+    productModalTitle.textContent = detail.title;
+    productModalOverview.textContent = detail.overview;
+    productModalSpecs.replaceChildren();
+    productModalFeatures.replaceChildren();
+
+    detail.specs.forEach(([label, value]) => {
+      const row = document.createElement('div');
+      const term = document.createElement('dt');
+      const description = document.createElement('dd');
+      term.textContent = label;
+      description.textContent = value;
+      row.append(term, description);
+      productModalSpecs.append(row);
+    });
+
+    detail.features.forEach((feature) => {
+      const item = document.createElement('li');
+      item.textContent = feature;
+      productModalFeatures.append(item);
+    });
+
+    const subject = language === 'ar'
+      ? `استفسار عن ${detail.title}`
+      : `FTS enquiry - ${detail.title}`;
+    productModalCta.href = `mailto:contact@getfixable.com?subject=${encodeURIComponent(subject)}`;
+  }
+
+  function openProductModal(productId, trigger) {
+    if (!productModal || !productDetails[productId]) return;
+    activeProduct = productId;
+    lastProductTrigger = trigger;
+    renderProductModal(productId);
+    productModal.setAttribute('aria-hidden', 'false');
+    productModal.classList.add('is-open');
+    document.body.classList.add('modal-open');
+    if (productModalDialog) productModalDialog.scrollTop = 0;
+    requestAnimationFrame(() => productModalClose?.focus());
+  }
+
+  function closeProductModal() {
+    if (!productModal?.classList.contains('is-open')) return;
+    productModal.classList.remove('is-open');
+    productModal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
+    activeProduct = null;
+    if (lastProductTrigger) lastProductTrigger.focus({ preventScroll: true });
+  }
+
+  function setupProductModal() {
+    document.querySelectorAll('.product-card[data-product]').forEach((card) => {
+      card.addEventListener('click', () => openProductModal(card.dataset.product, card));
+      card.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          openProductModal(card.dataset.product, card);
+        }
+      });
+    });
+
+    document.querySelectorAll('[data-modal-close]').forEach((element) => {
+      element.addEventListener('click', closeProductModal);
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (!productModal?.classList.contains('is-open')) return;
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeProductModal();
+        return;
+      }
+      if (event.key !== 'Tab' || !productModalDialog) return;
+
+      const focusable = Array.from(productModalDialog.querySelectorAll('button, a[href], [tabindex]:not([tabindex="-1"])'))
+        .filter((element) => !element.hasAttribute('disabled'));
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    });
+  }
+
   // ---------- Image loading ----------
   const images = new Array(TOTAL_FRAMES);
   let loadedCount = 0;
@@ -226,10 +645,11 @@
     loader.classList.add('hidden');
   }
 
-  function loadFrame(i) {
+  function loadFrame(i, priority = 'low') {
     return new Promise((resolve) => {
       const img = new Image();
       img.decoding = 'async';
+      img.fetchPriority = priority;
       img.onload = () => {
         loadedCount++;
         images[i - 1] = img;
@@ -251,10 +671,10 @@
   async function preloadAll() {
     // Load the prime set first (sequential, so progress feels deterministic).
     for (let i = 1; i <= Math.min(PRIME_FRAMES, TOTAL_FRAMES); i++) {
-      await loadFrame(i);
+      await loadFrame(i, i === 1 ? 'high' : 'auto');
     }
     // Then the rest in parallel, no await — they fill in the background.
-    for (let i = PRIME_FRAMES + 1; i <= TOTAL_FRAMES; i++) {
+    for (let i = PRIME_FRAMES + 1; i <= TOTAL_FRAMES; i += BACKGROUND_FRAME_STEP) {
       loadFrame(i);
     }
     // Safety: if PRIME_FRAMES > TOTAL_FRAMES, hide anyway.
@@ -428,7 +848,7 @@
 
   // ---------- Reveal on scroll ----------
   function setupReveal() {
-    const els = document.querySelectorAll('.section-head, .service, .why-card, .eng-text, .contact-inner');
+    const els = document.querySelectorAll('.section-head, .service, .why-card, .eng-text, .product-card, .collection-intro, .cabin-group, .process-step, .amc-panel, .contact-inner');
     els.forEach(el => el.classList.add('reveal'));
     const io = new IntersectionObserver((entries) => {
       for (const e of entries) {
@@ -444,6 +864,8 @@
   // ---------- Init ----------
   function init() {
     setupLanguage();
+    setupMobileNavigation();
+    setupProductModal();
     sizeCanvas();
     window.addEventListener('resize', sizeCanvas, { passive: true });
     window.addEventListener('scroll', onScroll, { passive: true });
@@ -453,8 +875,9 @@
     updateNav();
     preloadAll();
 
-    // Failsafe: if loader is somehow still up after 8s, hide it.
-    setTimeout(() => { if (!primed) { primed = true; hideLoader(); render(); } }, 8000);
+    // Keep slow mobile connections from being trapped behind the loader.
+    const loaderTimeout = isNarrowViewport ? 4000 : 8000;
+    setTimeout(() => { if (!primed) { primed = true; hideLoader(); render(); } }, loaderTimeout);
   }
 
   if (document.readyState === 'loading') {
