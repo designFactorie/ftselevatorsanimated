@@ -578,6 +578,8 @@
     productModal.classList.add('is-open');
     document.body.classList.add('modal-open');
     if (productModalDialog) productModalDialog.scrollTop = 0;
+    const productModalContent = productModal.querySelector('.product-modal-content');
+    if (productModalContent) productModalContent.scrollTop = 0;
     requestAnimationFrame(() => productModalClose?.focus());
   }
 
